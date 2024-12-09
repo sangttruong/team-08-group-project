@@ -1,0 +1,28 @@
+#  files
+.Rproj.user/
+*.Rproj
+
+# History files
+.Rhistory
+.Rapp.history
+
+# Data files
+*.RData
+*.Rdata
+*.RDS
+*.rds
+
+# Logs and reports
+*.log
+*.out
+*.pdf
+
+# Temporary files
+*.tmp
+*.swp
+.DS_Store
+
+# Packrat or renv dependencies
+packrat/
+renv/
+
