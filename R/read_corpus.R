@@ -1,15 +1,25 @@
 
+#' Process Files
+#'
 #' For usage in the "getbook" function.
 #' This, very simply, reads in a JSON file.
 #' @import jsonlite
+#' @param filename Takes in the location of the JSON file
+#' @return JSON file as a dataframe
+#' @export
 proc <- function(filename){
   data <- fromJSON(filename)
   return(data)
 }
 
+#' Count Dependencies
+#'
 #' For usage in the "create character data" function.
 #' This function extracts a dependency list from a JSON file,
 #' and creates a counter from the terms in the list.
+#' @param dep_list list from a read JSON file
+#' @return list containing character data
+#' @export
 get_counter_from_dependency_list <- function(dep_list) {
   counter <- dep_list %>%
     group_by(w) %>%
@@ -17,6 +27,8 @@ get_counter_from_dependency_list <- function(dep_list) {
   return(counter)
 }
 
+#' Create Character Data
+#'
 #' The key function that will later be called to run "getbook."
 #' This function takes in a given .book file and creates character data from the .book file.
 #' Create a data dictionary for this--but essentially returns character's coreference ID,
@@ -24,6 +36,10 @@ get_counter_from_dependency_list <- function(dep_list) {
 #' (as an "agent"), things done upon them (as a "patient"), things they possess (whether
 #' that's a material thing or quality, like a necklace, family, or intelligence),
 #' modifiers/descriptors of the character.
+#' @param data Large list (list of dfs, dependency parsing list) containing data of the JSON file per text
+#' @param printTop Top x number of actions/modifiers/possessions to return
+#' @return Large dataframe containing character level data per text
+#' @export
 create_character_data <- function(data, printTop) {
 
   chara_data <- data$characters
@@ -93,8 +109,13 @@ create_character_data <- function(data, printTop) {
 }
 
 
+#' Flatten Lists
+#'
 #' For usage in the "getbook function." Standardizes list elements to ensure lists have the
 #' same structure before conversion into a dataframe.
+#' @param x list containing character data
+#' @return cleaned list rest for conversion into df
+#' @export
 flatten_list <- function(x) {
   list(
     coref = x$coref,
@@ -108,6 +129,8 @@ flatten_list <- function(x) {
   )
 }
 
+#' Get Book Data
+#'
 #' This function essentially applies the create_character_data function to all files
 #' within your corpus, extracting only the .book files
 #' @param filepath Filepath containing .book files (scripts parsed by BookNLP on corpus)
@@ -147,14 +170,17 @@ getbook <- function(filepath, outputpath = NULL) {
 }
 
 
-
-
+#' Get Tokens
+#'
 #' Function to read in the .tokens files associated with each BookNLP parsed text.
 #' The .tokens file simply contains details (part of speech, lemmatized form, link to character)
 #' about each token (word or punctuation mark) in the text.
 #' This function aims to simply gather all the .tokens files, and store them in one object ("token_files").
 #' The output to this function can then be used if somebody is interested in the plain text of a document,
 #' rather than the BookNLP parse of the document.
+#' @param filepath File path of directory containing BookNLP parses/document ending in file type ".tokens"
+#' @return List of dataframes
+#' @export
 gettokens <- function(filepath){
   local_directory <- filepath
   token_files <- list.files(path = local_directory, pattern = "\\.tokens", full.names = TRUE)

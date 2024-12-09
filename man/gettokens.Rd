@@ -2,14 +2,15 @@
 % Please edit documentation in R/read_corpus.R
 \name{gettokens}
 \alias{gettokens}
-\title{Function to read in the .tokens files associated with each BookNLP parsed text.
-The .tokens file simply contains details (part of speech, lemmatized form, link to character)
-about each token (word or punctuation mark) in the text.
-This function aims to simply gather all the .tokens files, and store them in one object ("token_files").
-The output to this function can then be used if somebody is interested in the plain text of a document,
-rather than the BookNLP parse of the document.}
+\title{Get Tokens}
 \usage{
 gettokens(filepath)
+}
+\arguments{
+\item{filepath}{File path of directory containing BookNLP parses/document ending in file type ".tokens"}
+}
+\value{
+List of dataframes
 }
 \description{
 Function to read in the .tokens files associated with each BookNLP parsed text.

@@ -2,10 +2,15 @@
 % Please edit documentation in R/read_corpus.R
 \name{flatten_list}
 \alias{flatten_list}
-\title{For usage in the "getbook function." Standardizes list elements to ensure lists have the
-same structure before conversion into a dataframe.}
+\title{Flatten Lists}
 \usage{
 flatten_list(x)
+}
+\arguments{
+\item{x}{list containing character data}
+}
+\value{
+cleaned list rest for conversion into df
 }
 \description{
 For usage in the "getbook function." Standardizes list elements to ensure lists have the

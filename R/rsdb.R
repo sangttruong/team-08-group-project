@@ -1,5 +1,5 @@
 
-#' Expand Dataframe -----
+#' Expand Dataframe
 #'
 #' Data wrangling function that helps make variables in a character dataframe legible
 #' for further data processing (e.g., by splitting up individual words and their associated
@@ -9,6 +9,7 @@
 #' the initial output from parsed_books, and generate descriptive output from the corpus.
 #'
 #' @param example_text A single parsed text, e.g., one entry from the list output of getbook().
+#' @param col_name The column that should be expanded (e.g., "Modifiers", "Actions", "Possessions", etc.)
 #' @return An expanded (wider) version of the inputted text.
 #'
 #' @export
@@ -46,7 +47,7 @@ expand_text <- function(example_text, col_name){
 
 
 
-#' Grabbing Racial Modifiers -----
+#' Grabbing Racial Modifiers
 #'
 #'This function grabs the modifiers used to describe the characters in a single text
 #'(e.g., one dataframe from the list output of "getbooks").

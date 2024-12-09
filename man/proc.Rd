@@ -2,10 +2,15 @@
 % Please edit documentation in R/read_corpus.R
 \name{proc}
 \alias{proc}
-\title{For usage in the "getbook" function.
-This, very simply, reads in a JSON file.}
+\title{Process Files}
 \usage{
 proc(filename)
+}
+\arguments{
+\item{filename}{Takes in the location of the JSON file}
+}
+\value{
+JSON file as a dataframe
 }
 \description{
 For usage in the "getbook" function.

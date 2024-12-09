@@ -2,8 +2,7 @@
 % Please edit documentation in R/read_corpus.R
 \name{getbook}
 \alias{getbook}
-\title{This function essentially applies the create_character_data function to all files
-within your corpus, extracting only the .book files}
+\title{Get Book Data}
 \usage{
 getbook(filepath, outputpath = NULL)
 }

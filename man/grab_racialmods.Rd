@@ -2,7 +2,7 @@
 % Please edit documentation in R/rsdb.R
 \name{grab_racialmods}
 \alias{grab_racialmods}
-\title{Grabbing Racial Modifiers -----}
+\title{Grabbing Racial Modifiers}
 \usage{
 grab_racialmods(example_text, db = "rsdb")
 }

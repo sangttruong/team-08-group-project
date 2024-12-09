@@ -2,11 +2,15 @@
 % Please edit documentation in R/read_corpus.R
 \name{get_counter_from_dependency_list}
 \alias{get_counter_from_dependency_list}
-\title{For usage in the "create character data" function.
-This function extracts a dependency list from a JSON file,
-and creates a counter from the terms in the list.}
+\title{Count Dependencies}
 \usage{
 get_counter_from_dependency_list(dep_list)
+}
+\arguments{
+\item{dep_list}{list from a read JSON file}
+}
+\value{
+list containing character data
 }
 \description{
 For usage in the "create character data" function.

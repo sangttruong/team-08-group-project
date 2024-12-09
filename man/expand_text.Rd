@@ -2,12 +2,14 @@
 % Please edit documentation in R/rsdb.R
 \name{expand_text}
 \alias{expand_text}
-\title{Expand Dataframe -----}
+\title{Expand Dataframe}
 \usage{
 expand_text(example_text, col_name)
 }
 \arguments{
 \item{example_text}{A single parsed text, e.g., one entry from the list output of getbook().}
+
+\item{col_name}{The column that should be expanded (e.g., "Modifiers", "Actions", "Possessions", etc.)}
 }
 \value{
 An expanded (wider) version of the inputted text.
