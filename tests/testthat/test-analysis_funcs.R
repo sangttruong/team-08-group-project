@@ -3,7 +3,7 @@ test_that("test_tf_idf", {
 
   # Function run without errors
   expect_no_error(
-    res <- tf_idf(filepath=filepath, group="PUBLISHER", number_groups=1, term=list("preface"))
+    res <- tf_idf(filepath = filepath, group = "PUBLISHER", number_groups = 1, term = list("preface"))
   )
 
   # Result has 1 row
@@ -26,7 +26,7 @@ test_that("test_grab_collocates", {
 
   # Function run without errors
   expect_no_error(
-    colls <- grab_collocates(filepath=filepath, terms=list("preface"), horizon=2)
+    colls <- grab_collocates(filepath = filepath, terms = list("preface"), horizon = 2)
   )
 
   # Result has 1 row

@@ -1,4 +1,3 @@
-
 #' Sentiment Analysis of Characters -----
 #'
 #' This function takes in a list of character dataframes (e.g., a list output produced by running
@@ -21,13 +20,26 @@
 #' @import dplyr
 #' @import stringr
 #' @export
-grab_sentiment <- function(parsedbooks, colname, method = "syuzhet"){
 
+utils::globalVariables(c(
+  "Words",
+  "Counts",
+  "sentimentscores",
+  "counts",
+  "weightedsentiment",
+  "max_used_name",
+  "chara_count",
+  "chara_main_gender",
+  "sentiment_sd",
+  "chara_level",
+  "text_no"
+))
+
+grab_sentiment <- function(parsedbooks, colname, method = "syuzhet") {
   method_sym <- sym(method)
   sentiment_scores <- list()
 
-  for (i in 1:length(parsedbooks)){
-
+  for (i in 1:length(parsedbooks)) {
     book <- parsedbooks[[i]]
 
     words <- expand_text(book, col_name = colname) %>%
@@ -37,19 +49,28 @@ grab_sentiment <- function(parsedbooks, colname, method = "syuzhet"){
       ) %>%
       rowwise() %>%
       mutate(
-        sentimentscores = list(
-          get_sentiment(unlist(words), method = as.character(method_sym))
-        ),
-        weightedsentiment = sum(unlist(sentimentscores) * as.numeric(unlist(counts)),
-                                na.rm = TRUE) / sum(as.numeric(unlist(counts)), na.rm = TRUE),
+        sentimentscores = list(get_sentiment(unlist(words), method = as.character(method_sym))),
+        weightedsentiment = sum(unlist(sentimentscores) * as.numeric(unlist(counts)), na.rm = TRUE) / sum(as.numeric(unlist(counts)), na.rm = TRUE),
         sentiment_sd = sqrt(
-          sum(as.numeric(unlist(counts)) * (unlist(sentimentscores) - weightedsentiment)^2, na.rm = TRUE) /
+          sum(
+            as.numeric(unlist(counts)) * (unlist(sentimentscores) - weightedsentiment)^
+              2,
+            na.rm = TRUE
+          ) /
             sum(as.numeric(unlist(counts)), na.rm = TRUE)
         )
       ) %>%
       ungroup() %>%
-      select(max_used_name, chara_count, chara_main_gender,
-             words, counts, sentimentscores, weightedsentiment, sentiment_sd) %>%
+      select(
+        max_used_name,
+        chara_count,
+        chara_main_gender,
+        words,
+        counts,
+        sentimentscores,
+        weightedsentiment,
+        sentiment_sd
+      ) %>%
       mutate(chara_level = as.numeric(rownames(.)))
 
     sentiment_scores[[i]] <- words
@@ -72,43 +93,55 @@ grab_sentiment <- function(parsedbooks, colname, method = "syuzhet"){
 #' @return A ggplot. Note that the x-axis can (and likely should) be constrained to fit a smaller number of characters than there are total in the corpus.
 #' @import ggplot2
 #' @export
-plot_sentiment <- function(sentiment_list, measure, charalevel){
-
+plot_sentiment <- function(sentiment_list, measure, charalevel) {
   combined_df <- sentiment_list[[1]] %>%
     mutate(text_no = as.factor(1))
-  for (i in 1:(length(sentiment_list) - 1)){
+  for (i in 1:(length(sentiment_list) - 1)) {
     combined_df <- sentiment_list[[i]] %>%
       mutate(text_no = as.factor(i)) %>%
       rbind(combined_df)
   }
 
-  ggplot(data = combined_df, aes(x = chara_level,
-                                 y = if(measure == "mean"){weightedsentiment}
-                                 else if(measure == "sd"){sentiment_sd},
-                                 color = text_no)) +
+  ggplot(data = combined_df, aes(
+    x = chara_level,
+    y = if (measure == "mean") {
+      weightedsentiment
+    } else if (measure == "sd") {
+      sentiment_sd
+    },
+    color = text_no
+  )) +
     geom_point() +
-    labs(color = "# Texts",
-         x = "Character Majorness",
-         y = if(measure == "mean"){"Sentiment of Character"}
-         else if(measure == "sd"){"Diversity in Character Description"},
-         title = paste(
-           if(measure == "mean"){"Character Sentiment"}
-           else if(measure == "sd"){"Range of Character Description"},
-           "vs Majorness of Character"
-         )
+    labs(
+      color = "# Texts",
+      x = "Character Majorness",
+      y = if (measure == "mean") {
+        "Sentiment of Character"
+      } else if (measure == "sd") {
+        "Diversity in Character Description"
+      },
+      title = paste(if (measure == "mean") {
+        "Character Sentiment"
+      } else if (measure == "sd") {
+        "Range of Character Description"
+      }, "vs Majorness of Character")
     ) +
-    scale_y_continuous(
-      breaks = if(measure == "mean"){c(min(combined_df$weightedsentiment),
-                                       0,
-                                       max(combined_df$weightedsentiment))}
-      else if(measure == "sd"){c(0, max(combined_df$sentiment_sd))},
-      labels = if(measure == "mean"){c("Negative", "Neutral", "Positive")}
-      else if(measure == "sd"){c("Low", "High")}
-    ) +
+    scale_y_continuous(breaks = if (measure == "mean") {
+      c(
+        min(combined_df$weightedsentiment),
+        0,
+        max(combined_df$weightedsentiment)
+      )
+    } else if (measure == "sd") {
+      c(0, max(combined_df$sentiment_sd))
+    }, labels = if (measure == "mean") {
+      c("Negative", "Neutral", "Positive")
+    } else if (measure == "sd") {
+      c("Low", "High")
+    }) +
     scale_x_continuous(
       limits = c(1, charalevel),
       breaks = c(1, charalevel),
       labels = c("Major", "Minor")
     )
 }
-

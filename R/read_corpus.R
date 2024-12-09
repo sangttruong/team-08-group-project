@@ -1,4 +1,3 @@
-
 #' Process Files
 #'
 #' For usage in the "getbook" function.
@@ -7,7 +6,7 @@
 #' @param filename Takes in the location of the JSON file
 #' @return JSON file as a dataframe
 #' @export
-proc <- function(filename){
+proc <- function(filename) {
   data <- fromJSON(filename)
   return(data)
 }
@@ -20,6 +19,9 @@ proc <- function(filename){
 #' @param dep_list list from a read JSON file
 #' @return list containing character data
 #' @export
+
+utils::globalVariables(c("w"))
+
 get_counter_from_dependency_list <- function(dep_list) {
   counter <- dep_list %>%
     group_by(w) %>%
@@ -41,44 +43,43 @@ get_counter_from_dependency_list <- function(dep_list) {
 #' @return Large dataframe containing character level data per text
 #' @export
 create_character_data <- function(data, printTop) {
-
   chara_data <- data$characters
   character_data <- list()
 
   for (character in 1:nrow(chara_data)) {
-
     agentList <- chara_data$agent[[character]]
     patientList <- chara_data$patient[[character]]
     possList <- chara_data$poss[[character]]
     modList <- chara_data$mod[[character]]
 
     coref_id <- chara_data$id[[character]]
-    chara_count <- chara_data$count[[character]] #number times the character appears
+    chara_count <- chara_data$count[[character]] # number times the character appears
 
     chara_main_gender <- "unknown"
     chara_gender_distribution <- "unknown"
 
-    if (!is.null(chara_data$g)) { #basically, if pronoun analysis exists
-      chara_gender_distribution <- chara_data$g$inference[character, ] #again: distribution of pronoun usage
-      chara_main_gender <- chara_data$g$argmax[[character]] #most frequently used set of pronouns
+    if (!is.null(chara_data$g)) {
+      # basically, if pronoun analysis exists
+      chara_gender_distribution <- chara_data$g$inference[character, ] # again: distribution of pronoun usage
+      chara_main_gender <- chara_data$g$argmax[[character]] # most frequently used set of pronouns
     }
 
-    names <- chara_data$mentions$proper[[character]] #best way to 'name' characters since this is in descending order. believe n refers to the name itself, c refers to the number of times it appears
+    names <- chara_data$mentions$proper[[character]] # best way to 'name' characters since this is in descending order. believe n refers to the name itself, c refers to the number of times it appears
     max_used_name <- ""
 
     # Making empty lists for items
-    agent_items <- list() #actions done by character
-    patient_items <- list() #actions done upon character
-    poss_items <- list() #things the character 'has'--body parts, family members
-    mod_items <- list() #modifiers--descriptors applied to the character
+    agent_items <- list() # actions done by character
+    patient_items <- list() # actions done upon character
+    poss_items <- list() # things the character 'has'--body parts, family members
+    mod_items <- list() # modifiers--descriptors applied to the character
 
     # Print out information about named characters
-    if (length(names) > 0 &&  #this is where the difference is to adjust for the bug on Diaz + Farming of Bones. Check this, and apply for this select number of books to analyze farming of bones through diaz books
-        nrow(agentList) != 0 &&
-        nrow(patientList) != 0 &&
-        nrow(possList) != 0 &&
-        nrow(modList) != 0) {
-
+    if (length(names) > 0 &&
+      # this is where the difference is to adjust for the bug on Diaz + Farming of Bones. Check this, and apply for this select number of books to analyze farming of bones through diaz books
+      nrow(agentList) != 0 &&
+      nrow(patientList) != 0 &&
+      nrow(possList) != 0 &&
+      nrow(modList) != 0) {
       max_used_name <- names$n[[1]]
 
       agent_counter <- get_counter_from_dependency_list(agentList)
@@ -86,17 +87,29 @@ create_character_data <- function(data, printTop) {
       poss_counter <- get_counter_from_dependency_list(possList)
       mod_counter <- get_counter_from_dependency_list(modList)
 
-      agent_items <- agent_counter %>% arrange(desc(count)) %>% head(printTop) %>% as.list()
-      patient_items <- patient_counter %>% arrange(desc(count)) %>% head(printTop) %>% as.list()
-      poss_items <- poss_counter %>% arrange(desc(count)) %>% head(printTop) %>% as.list()
-      mod_items <- mod_counter %>% arrange(desc(count)) %>% head(printTop) %>% as.list()
+      agent_items <- agent_counter %>%
+        arrange(desc(count)) %>%
+        head(printTop) %>%
+        as.list()
+      patient_items <- patient_counter %>%
+        arrange(desc(count)) %>%
+        head(printTop) %>%
+        as.list()
+      poss_items <- poss_counter %>%
+        arrange(desc(count)) %>%
+        head(printTop) %>%
+        as.list()
+      mod_items <- mod_counter %>%
+        arrange(desc(count)) %>%
+        head(printTop) %>%
+        as.list()
 
       character_data[[character]] <- list(
         coref = coref_id,
         chara_count = chara_count,
         max_used_name = max_used_name,
         chara_main_gender = chara_main_gender,
-        #chara_gender_distribution = chara_gender_distribution,
+        # chara_gender_distribution = chara_gender_distribution,
         agentList = agent_items,
         patientList = patient_items,
         possList = poss_items,
@@ -139,7 +152,11 @@ flatten_list <- function(x) {
 #' @export
 getbook <- function(filepath, outputpath = NULL) {
   local_directory <- filepath
-  book_files <- list.files(path = local_directory, pattern = "\\.book", full.names = TRUE)
+  book_files <- list.files(
+    path = local_directory,
+    pattern = "\\.book",
+    full.names = TRUE
+  )
 
   output_dir <- outputpath
   list_of_char_analyses <- list()
@@ -152,10 +169,12 @@ getbook <- function(filepath, outputpath = NULL) {
       lapply(flatten_list) %>%
       bind_rows() %>%
       na.omit() %>%
-      rename("Actions Done" = "agentList",
-             "Actions Done On" = "patientList",
-             "Posessions" = "possList",
-             "Modifiers" = "modList")
+      rename(
+        "Actions Done" = "agentList",
+        "Actions Done On" = "patientList",
+        "Posessions" = "possList",
+        "Modifiers" = "modList"
+      )
 
     list_of_char_analyses[[basename(file_path)]] <- book_character_results
 
@@ -181,15 +200,15 @@ getbook <- function(filepath, outputpath = NULL) {
 #' @param filepath File path of directory containing BookNLP parses/document ending in file type ".tokens"
 #' @return List of dataframes
 #' @export
-gettokens <- function(filepath){
+gettokens <- function(filepath) {
   local_directory <- filepath
-  token_files <- list.files(path = local_directory, pattern = "\\.tokens", full.names = TRUE)
-  read_tokens_file <- function(file_path){
-    read.csv(file_path, sep = '\t')
+  token_files <- list.files(
+    path = local_directory,
+    pattern = "\\.tokens",
+    full.names = TRUE
+  )
+  read_tokens_file <- function(file_path) {
+    read.csv(file_path, sep = "\t")
   }
   token_files <- map(token_files, read_tokens_file)
 }
-
-
-
-

@@ -1,4 +1,3 @@
-
 # test_that("retrieving rsdb data works", {
 #
 #   test_data_path <- testthat::test_path("testdata", "examplecorpus")

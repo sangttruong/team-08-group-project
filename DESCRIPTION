@@ -16,7 +16,6 @@ Description: This package takes in corpus-level data: in particular, it develops
 Imports: 
     ggplot2, 
     dplyr, 
-    purrr, 
     tidyverse, 
     tm, 
     jsonlite,
@@ -24,16 +23,11 @@ Imports:
     tidyr, 
     syuzhet, 
     quarto, 
-    tidytext, 
-    quanteda, 
-    usethis, 
-    roxygen2,
-    testthat
+    tidytext,
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-VignetteBuilder: quarto 
-Suggests: 
-    testthat (>= 3.0.0)
+Suggests: testthat (>= 3.0.0)
+VignetteBuilder: quarto
 Config/testthat/edition: 3

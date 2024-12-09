@@ -7,19 +7,23 @@
 tf_idf(filepath, group = "time", number_groups = 2, terms)
 }
 \arguments{
-\item{filepath}{Character. The path to the directory containing \code{.tokens} files.}
+\item{filepath}{Character. Path to the directory containing \code{.tokens} files.}
 
-\item{group}{Character. The column name in the metadata used to group the corpus (e.g., "time" or "author").}
+\item{group}{Character. The column name in the metadata used to group the
+corpus (e.g., "time" or "author").}
 
-\item{number_groups}{Integer. The number of groups to divide the metadata into (default: 2).}
+\item{number_groups}{Integer. The number of groups to divide the metadata
+into (default: 2).}
 
-\item{terms}{Character vector. The terms for which TF-IDF scores are calculated.}
+\item{terms}{Character vector. Terms for which TF-IDF scores are calculated.}
 }
 \value{
-A data frame containing the TF-IDF scores for each term in each group.
-Additionally, a column plot is displayed showing TF-IDF scores by group.
+A data frame containing the TF-IDF scores for each term in each
+group. Additionally, a column plot is displayed showing TF-IDF scores by
+group.
 }
 \description{
-This function calculates TF-IDF (Term Frequency-Inverse Document Frequency) scores
-for terms in a corpus and visualizes the results as a column plot grouped by a metadata variable.
+This function calculates TF-IDF (Term Frequency-Inverse Document Frequency)
+scores for terms in a corpus and visualizes the results as a column plot
+grouped by a metadata variable.
 }

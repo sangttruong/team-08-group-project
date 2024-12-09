@@ -1,20 +1,29 @@
 #' Calculate and Visualize TF-IDF Scores
 #'
-#' This function calculates TF-IDF (Term Frequency-Inverse Document Frequency) scores
-#' for terms in a corpus and visualizes the results as a column plot grouped by a metadata variable.
+#' This function calculates TF-IDF (Term Frequency-Inverse Document Frequency)
+#' scores for terms in a corpus and visualizes the results as a column plot
+#' grouped by a metadata variable.
 #'
-#' @param filepath Character. The path to the directory containing `.tokens` files.
-#' @param group Character. The column name in the metadata used to group the corpus (e.g., "time" or "author").
-#' @param number_groups Integer. The number of groups to divide the metadata into (default: 2).
-#' @param terms Character vector. The terms for which TF-IDF scores are calculated.
+#' @param filepath Character. Path to the directory containing `.tokens` files.
+#' @param group Character. The column name in the metadata used to group the
+#' corpus (e.g., "time" or "author").
+#' @param number_groups Integer. The number of groups to divide the metadata
+#' into (default: 2).
+#' @param terms Character vector. Terms for which TF-IDF scores are calculated.
 #'
-#' @return A data frame containing the TF-IDF scores for each term in each group.
-#' Additionally, a column plot is displayed showing TF-IDF scores by group.
+#' @return A data frame containing the TF-IDF scores for each term in each
+#' group. Additionally, a column plot is displayed showing TF-IDF scores by
+#' group.
 #'
-#' @import dplyr tidyr tidytext tm ggplot2 quanteda stringr
+#' @import dplyr tidyr tidytext tm ggplot2 stringr
 #' @export
 
-tf_idf <- function(filepath, group = "time", number_groups = 2, terms) {
+utils::globalVariables(c(".", "document", "FILENAME", "group", "word", "tf_idf", "n"))
+
+tf_idf <- function(filepath,
+                   group = "time",
+                   number_groups = 2,
+                   terms) {
   # Load metadata
 
   metadata <- read.csv(file.path(filepath, "CHICAGO_CORPUS_NOVELS.csv"))
@@ -26,11 +35,16 @@ tf_idf <- function(filepath, group = "time", number_groups = 2, terms) {
 
   # Check the column name in your metadata
   if (!"FILENAME" %in% colnames(metadata)) {
-    stop("The metadata does not have a column named 'FILENAME'. Please check your metadata file.")
+    stop(
+      "Metadata does not have a column named 'FILENAME'. Please check."
+    )
   }
-  text_filenames = metadata[["FILENAME"]]
+  text_filenames <- metadata[["FILENAME"]]
   text_filenames_no_extension <- sub("\\.txt$", "", text_filenames)
-  indices <- match(unlist(filenames_no_extension), unlist(text_filenames_no_extension))
+  indices <- match(
+    unlist(filenames_no_extension),
+    unlist(text_filenames_no_extension)
+  )
   indices_vector <- unlist(indices)
   indices_vector <- indices_vector[!is.na(indices_vector)]
 
@@ -49,7 +63,13 @@ tf_idf <- function(filepath, group = "time", number_groups = 2, terms) {
   # Create groups
   if (number_groups > 1) {
     metadata <- metadata %>%
-      mutate(group = cut(as.numeric(get(group)), breaks = number_groups, labels = FALSE))
+      mutate(
+        group = cut(
+          as.numeric(get(group)),
+          breaks = number_groups,
+          labels = FALSE
+        )
+      )
   } else {
     metadata <- metadata %>%
       mutate(group = get(group))
@@ -74,10 +94,18 @@ tf_idf <- function(filepath, group = "time", number_groups = 2, terms) {
             str_remove_all("[[:punct:]]") %>%
             str_remove_all("[[:digit:]]") %>%
             removeWords(stopwords("en"))
-          data.frame(word = tokens, document = document_id, group = group_value)
+          data.frame(
+            word = tokens,
+            document = document_id,
+            group = group_value
+          )
         } else {
           print(paste("File does not exist:", filepath))
-          data.frame(word = character(), document = character(), group = character())
+          data.frame(
+            word = character(),
+            document = character(),
+            group = character()
+          )
         }
       })
 
@@ -87,28 +115,42 @@ tf_idf <- function(filepath, group = "time", number_groups = 2, terms) {
       # Calculate term frequency and tf-idf
       dtm <- word_data %>%
         count(document, word, name = "n") %>%
-        bind_tf_idf(term = word, document = document, n = n) %>%
+        bind_tf_idf(
+          term = word,
+          document = document,
+          n = n
+        ) %>%
         filter(word %in% terms)
 
       # Aggregate tf-idf scores by group
       dtm_grouped <- dtm %>%
-        left_join(metadata %>% mutate(document = sub("\\.txt$", "", FILENAME)) %>% select(document, group), by = "document") %>%
+        left_join(
+          metadata %>% mutate(
+            document = sub("\\.txt$", "", FILENAME)
+          ) %>% select(document, group),
+          by = "document"
+        ) %>%
         group_by(group, word) %>%
         summarise(tf_idf = mean(tf_idf, na.rm = TRUE)) %>%
-
         return(dtm_grouped)
     }) %>%
     unnest(cols = c())
 
   # Step 4: Visualize results as a column plot
   if (nrow(results) > 0) {
-    ggplot(results, aes(x = factor(group), y = tf_idf, fill = word)) +
+    ggplot(results, aes(
+      x = factor(group),
+      y = tf_idf,
+      fill = word
+    )) +
       geom_col(position = "dodge") + # Use geom_col for column plot
       theme_minimal() +
-      labs(title = "TF-IDF Scores by Group",
-           x = "Group",
-           y = "TF-IDF",
-           fill = "Term") +
+      labs(
+        title = "TF-IDF Scores by Group",
+        x = "Group",
+        y = "TF-IDF",
+        fill = "Term"
+      ) +
       theme(axis.text.x = element_text(angle = 45, hjust = 1))
   } else {
     print("No results to visualize. Ensure terms match tokens in the documents.")
@@ -132,6 +174,8 @@ tf_idf <- function(filepath, group = "time", number_groups = 2, terms) {
 #' @import dplyr tidyr stringr
 #' @export
 
+utils::globalVariables(c("collocate", "p_value"))
+
 grab_collocates <- function(filepath, terms, horizon) {
   # Step 1: Process Corpus
   files <- list.files(filepath, pattern = "\\.tokens$", full.names = TRUE)
@@ -142,7 +186,7 @@ grab_collocates <- function(filepath, terms, horizon) {
 
   # Combine all .tokens files into one data frame
   corpus <- lapply(files, function(file) {
-    read.delim(file, header = TRUE, quote = "") %>%  # Disable quoting
+    read.delim(file, header = TRUE, quote = "") %>% # Disable quoting
       select(word) %>%
       mutate(word = tolower(word) %>% str_remove_all("[[:punct:]]")) %>%
       filter(word != "")
@@ -179,12 +223,14 @@ grab_collocates <- function(filepath, terms, horizon) {
     collocate_counts <- collocate_counts %>%
       mutate(collocate = as.character(collocate)) %>% # Convert to character
       rowwise() %>%
-      mutate(p_value = chisq.test(matrix(c(count, sum(corpus$word != collocate)), ncol = 2))$p.value)
+      mutate(p_value = chisq.test(matrix(c(
+        count, sum(corpus$word != collocate)
+      ), ncol = 2))$p.value)
 
     # Filter results to reduce noise
     collocate_counts <- collocate_counts %>%
       arrange(p_value) %>%
-      filter(!str_detect(collocate, "\\d")) %>% # Remove numeric-only collocates
+      filter(!str_detect(collocate, "\\d")) %>% # Remove numeric-only collocs
       filter(nchar(collocate) > 2) # Remove short noise words
 
     return(collocate_counts)
@@ -192,12 +238,17 @@ grab_collocates <- function(filepath, terms, horizon) {
 
   # Step 3: Parse Results
   results <- lapply(seq_along(terms), function(i) {
-    if (!is.null(collocate_results[[i]]) && nrow(collocate_results[[i]]) > 0) {
+    if (!is.null(collocate_results[[i]]) &&
+      nrow(collocate_results[[i]]) > 0) {
       # If there are rows in the current collocate result
       data.frame(term = terms[i], collocate_results[[i]])
     } else {
       # Create an empty data frame with all columns having zero rows
-      data.frame(term = character(0), word = character(0), frequency = integer(0))
+      data.frame(
+        term = character(0),
+        word = character(0),
+        frequency = integer(0)
+      )
     }
   }) %>%
     bind_rows()
@@ -205,4 +256,3 @@ grab_collocates <- function(filepath, terms, horizon) {
   # Return processed results
   return(results)
 }
-
